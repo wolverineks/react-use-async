@@ -1,3 +1,5 @@
+// @flow
+
 import { useRef, useState } from "react";
 
 export const useAsync = () => {
@@ -18,11 +20,11 @@ export const useAsync = () => {
     isMounted.current &&
       setState(state => ({ ...state, pending: true, error: void 0 }));
   };
-  const onSuccess = data => {
+  const onSuccess = (data: any) => {
     isMounted.current &&
       setState(state => ({ ...state, pending: false, data }));
   };
-  const onError = error => {
+  const onError = (error: Error) => {
     isMounted.current &&
       setState(state => ({ ...state, pending: false, error }));
   };
