@@ -42,9 +42,7 @@ const Posts = ({ userId }) => {
       )}
 
       {pending && <div>Loading...</div>}
-
       {error && <div>{error.message}</div>}
-
       <div>Posts</div>
       {posts && (
         <div>
@@ -80,9 +78,7 @@ const Posts = ({ userId }) => {
   return (
     <div>
       {pending && <div>Loading...</div>}
-
       {error && <div>{error.message}</div>}
-
       <div>Posts</div>
       {posts && (
         <div>
@@ -154,6 +150,37 @@ const Post = ({ id }: { id: ?string }) => {
     if (!id) return
     getPost(id)
   }, [id])
+
+  return (
+    <div>
+      {post && post.content}
+      {pending && 'Loading...'}
+      {error && error.message}
+    </div>
+  )
+}
+```
+
+#### Custom Hook
+
+```js
+const useGetPost = () => {
+  const { onStart, onSuccess, onError, pending, data: post } = useAsync()
+
+  const getPost = postId => {
+    onStart()
+    return PostService.getPost(postId)
+      .then(onSuccess)
+      .catch(onError)
+  }
+
+  return { getPost, pending, error, post }
+}
+
+const Post = ({ id }) => {
+  const { getPost, pending, error, post } = useGetPost()
+
+  useEffect(() => getPost(id), [id])
 
   return (
     <div>
