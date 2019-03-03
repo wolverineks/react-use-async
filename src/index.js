@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-export const useAsync = () => {
+const initialState = {
+  pending: false,
+  error: void 0,
+  data: void 0
+}
+
+export const useAsync = (): {
+  data: any,
+  error: ?Error,
+  onError: (error: Error) => void,
+  onStart: () => void,
+  onSuccess: (data: any) => void,
+  pending: boolean
+} => {
   const isMounted = useRef(false)
   useEffect(() => {
     isMounted.current = true
@@ -11,22 +24,18 @@ export const useAsync = () => {
     }
   }, [])
 
-  const [state, setState] = useState({
-    pending: false,
-    error: void 0,
-    data: void 0
-  })
+  const [state, setState] = useState(initialState)
   const onStart = () => {
-    isMounted.current && setState(state => ({ ...state, pending: true, error: void 0 }))
+    isMounted.current && setState({ pending: true, error: void 0, data: void 0 })
   }
   const onSuccess = (data: any) => {
-    isMounted.current && setState(state => ({ ...state, pending: false, data }))
+    isMounted.current && setState({ pending: false, error: void 0, data })
   }
   const onError = (error: Error) => {
-    isMounted.current && setState(state => ({ ...state, pending: false, error }))
+    isMounted.current && setState({ pending: false, error, data: void 0 })
   }
   const reset = () => {
-    isMounted.current && setState(state => ({ pending: false, error: void 0, data: void 0 }))
+    isMounted.current && setState(initialState)
   }
 
   return { onStart, onSuccess, onError, reset, ...state }
