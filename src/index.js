@@ -2,20 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const initialState = {
-  pending: false,
-  error: void 0,
-  data: void 0
-}
-
-export const useAsync = (): {
-  data: any,
-  error: ?Error,
-  onError: (error: Error) => void,
-  onStart: () => void,
-  onSuccess: (data: any) => void,
-  pending: boolean
-} => {
+const useIsMounted = () => {
   const isMounted = useRef(false)
   useEffect(() => {
     isMounted.current = true
@@ -24,19 +11,55 @@ export const useAsync = (): {
     }
   }, [])
 
-  const [state, setState] = useState(initialState)
+  return isMounted.current
+}
+
+const initialState = {
+  pending: false,
+  error: void 0,
+  data: void 0
+}
+
+export const useAsync = <Data>(): {
+  data: ?Data,
+  error: ?Error,
+  onError: (error: Error) => void,
+  onStart: () => void,
+  onSuccess: (data: Data) => void,
+  pending: boolean
+} => {
+  const isMounted = useIsMounted()
+  const [{ data, error, pending }, setState] = useState(initialState)
+
   const onStart = () => {
-    isMounted.current && setState({ pending: true, error: void 0, data: void 0 })
+    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
+    isMounted &&
+      setState({
+        data: void 0,
+        error: void 0,
+        pending: true
+      })
   }
-  const onSuccess = (data: any) => {
-    isMounted.current && setState({ pending: false, error: void 0, data })
+  const onSuccess = data => {
+    isMounted &&
+      setState({
+        data,
+        error: void 0,
+        pending: false
+      })
   }
-  const onError = (error: Error) => {
-    isMounted.current && setState({ pending: false, error, data: void 0 })
+  const onError = error => {
+    isMounted &&
+      setState({
+        error,
+        data: void 0,
+        pending: false
+      })
   }
   const reset = () => {
-    isMounted.current && setState(initialState)
+    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
+    isMounted && setState(initialState)
   }
 
-  return { onStart, onSuccess, onError, reset, ...state }
+  return { onStart, onSuccess, onError, reset, data, error, pending }
 }
