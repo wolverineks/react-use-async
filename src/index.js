@@ -26,7 +26,8 @@ export const useAsync = <Data>(): {
   onError: (error: Error) => void,
   onStart: () => void,
   onSuccess: (data: Data) => void,
-  pending: boolean
+  pending: boolean,
+  reset: () => void
 } => {
   const isMounted = useIsMounted()
   const [{ data, error, pending }, setState] = useState(initialState)
