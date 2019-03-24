@@ -1,6 +1,6 @@
 {
   "name": "react-use-async",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "React hook to manage async related state",
   "repository": "http://github.com/wolverineks/react-use-async",
   "license": "ISC",

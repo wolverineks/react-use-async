@@ -11,7 +11,7 @@ const useIsMounted = () => {
     }
   }, [])
 
-  return isMounted.current
+  return () => isMounted.current
 }
 
 const initialState = {
@@ -34,7 +34,7 @@ export const useAsync = <Data>(): {
 
   const onStart = () => {
     if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
-    isMounted &&
+    isMounted() &&
       setState({
         data: void 0,
         error: void 0,
@@ -42,7 +42,7 @@ export const useAsync = <Data>(): {
       })
   }
   const onSuccess = data => {
-    isMounted &&
+    isMounted() &&
       setState({
         data,
         error: void 0,
@@ -50,7 +50,7 @@ export const useAsync = <Data>(): {
       })
   }
   const onError = error => {
-    isMounted &&
+    isMounted() &&
       setState({
         error,
         data: void 0,
@@ -59,7 +59,7 @@ export const useAsync = <Data>(): {
   }
   const reset = () => {
     if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
-    isMounted && setState(initialState)
+    isMounted() && setState(initialState)
   }
 
   return { onStart, onSuccess, onError, reset, data, error, pending }
