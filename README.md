@@ -111,7 +111,7 @@ const Post = ({ id }) => {
 
   const getPost = postId => {
     onStart()
-    PostService.getPost(id)
+    PostService.getPost(postId)
       .then(onSuccess)
       .catch(onError)
   }
@@ -139,9 +139,9 @@ const Post = ({ id }: { id: ?string }) => {
   const { onStart, onSuccess, onError, pending, error, data: post } = useAsync()
 
   const getPost = postId => {
-    if (!id) return
+    if (!postId) return
     onStart()
-    PostService.getPost(id)
+    PostService.getPost(postId)
       .then(onSuccess)
       .catch(onError)
   }
