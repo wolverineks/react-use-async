@@ -9,7 +9,7 @@
     "build": "tsc",
     "prepublish": "tsc"
   },
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "React hook to manage async related state",
   "repository": "http://github.com/wolverineks/react-use-async",
   "license": "ISC",

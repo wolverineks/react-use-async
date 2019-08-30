@@ -1,5 +1,17 @@
 import * as React from "react";
 
+const useIsMounted = () => {
+  const isMounted = React.useRef(false)
+  React.useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
+  return () => isMounted.current
+}
+
 interface State {
   pending: boolean;
   error?: Error;
@@ -48,21 +60,28 @@ export const useAsync = <Data>(): {
   pending: boolean;
   reset: () => void;
 } => {
+  const isMounted = useIsMounted()
   const [{ data, error, pending }, dispatch] = React.useReducer(
     reducer,
     initialState,
   );
 
-  const onStart = React.useCallback(() => dispatch({ type: "START" }), []);
+  const onStart = React.useCallback(() => {
+    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
+    isMounted() && dispatch({ type: "START" })
+  }, []);
   const onSuccess = React.useCallback(
-    (data: Data) => dispatch({ type: "SUCCESS", data }),
+    (data: Data) => isMounted() && dispatch({ type: "SUCCESS", data }),
     [],
   );
   const onError = React.useCallback(
-    (error: Error) => dispatch({ type: "ERROR", error }),
+    (error: Error) => isMounted() && dispatch({ type: "ERROR", error }),
     [],
   );
-  const reset = React.useCallback(() => dispatch({ type: "RESET" }), []);
+  const reset = React.useCallback(() => {
+    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
+    isMounted() && dispatch({ type: "RESET" })
+  }, []);
 
   return { onStart, onSuccess, onError, reset, data, error, pending };
 };
