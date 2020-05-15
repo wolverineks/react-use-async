@@ -22,14 +22,12 @@
 
 ```js
 const Posts = ({ userId }) => {
-  const { onStart, onSuccess, onError, pending, error, data: posts } = useAsync()
+  const { onStart, onSuccess, onError, pending, error, data: posts } = useAsync();
 
   const getPosts = () => {
-    onStart()
-    PostService.getPosts(userId)
-      .then(onSuccess)
-      .catch(onError)
-  }
+    onStart();
+    PostService.getPosts(userId).then(onSuccess).catch(onError);
+  };
 
   return (
     <div>
@@ -46,14 +44,14 @@ const Posts = ({ userId }) => {
       <div>Posts</div>
       {posts && (
         <div>
-          {posts.map(post => (
+          {posts.map((post) => (
             <div>{post.content}</div>
           ))}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 ```
 
 ---
@@ -62,18 +60,16 @@ const Posts = ({ userId }) => {
 
 ```js
 const Posts = ({ userId }) => {
-  const { onStart, onSuccess, onError, pending, error, data: posts } = useAsync()
+  const { onStart, onSuccess, onError, pending, error, data: posts } = useAsync();
 
   const getPosts = () => {
-    onStart()
-    PostService.getPosts(userId)
-      .then(onSuccess)
-      .catch(onError)
-  }
+    onStart();
+    PostService.getPosts(userId).then(onSuccess).catch(onError);
+  };
 
   useEffect(() => {
-    getPosts()
-  }, [userId])
+    getPosts();
+  }, [userId]);
 
   return (
     <div>
@@ -82,14 +78,14 @@ const Posts = ({ userId }) => {
       <div>Posts</div>
       {posts && (
         <div>
-          {posts.map(post => (
+          {posts.map((post) => (
             <div>{post.content}</div>
           ))}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 ```
 
 ---
@@ -101,24 +97,22 @@ const Posts = ({ postIds }) => {
   return (
     <div>
       <div>Posts</div>
-      {postIds.map(id => () => <Post id={id} key={id} />)}
+      {postIds.map((id) => () => <Post id={id} key={id} />)}
     </div>
-  )
-}
+  );
+};
 
 const Post = ({ id }) => {
-  const { onStart, onSuccess, onError, pending, error, data: post } = useAsync()
+  const { onStart, onSuccess, onError, pending, error, data: post } = useAsync();
 
-  const getPost = postId => {
-    onStart()
-    PostService.getPost(postId)
-      .then(onSuccess)
-      .catch(onError)
-  }
+  const getPost = (postId) => {
+    onStart();
+    PostService.getPost(postId).then(onSuccess).catch(onError);
+  };
 
   useEffect(() => {
-    getPost(id)
-  }, [])
+    getPost(id);
+  }, []);
 
   return (
     <div>
@@ -126,8 +120,8 @@ const Post = ({ id }) => {
       {pending && 'Loading...'}
       {error && error.message}
     </div>
-  )
-}
+  );
+};
 ```
 
 ---
@@ -136,20 +130,18 @@ const Post = ({ id }) => {
 
 ```js
 const Post = ({ id }: { id: ?string }) => {
-  const { onStart, onSuccess, onError, pending, error, data: post } = useAsync()
+  const { onStart, onSuccess, onError, pending, error, data: post } = useAsync();
 
-  const getPost = postId => {
-    if (!postId) return
-    onStart()
-    PostService.getPost(postId)
-      .then(onSuccess)
-      .catch(onError)
-  }
+  const getPost = (postId) => {
+    if (!postId) return;
+    onStart();
+    PostService.getPost(postId).then(onSuccess).catch(onError);
+  };
 
   useEffect(() => {
-    if (!id) return
-    getPost(id)
-  }, [id])
+    if (!id) return;
+    getPost(id);
+  }, [id]);
 
   return (
     <div>
@@ -157,30 +149,28 @@ const Post = ({ id }: { id: ?string }) => {
       {pending && 'Loading...'}
       {error && error.message}
     </div>
-  )
-}
+  );
+};
 ```
 
 #### Custom Hook
 
 ```js
 const useGetPost = () => {
-  const { onStart, onSuccess, onError, pending, data: post } = useAsync()
+  const { onStart, onSuccess, onError, pending, data: post } = useAsync();
 
-  const getPost = postId => {
-    onStart()
-    return PostService.getPost(postId)
-      .then(onSuccess)
-      .catch(onError)
-  }
+  const getPost = (postId) => {
+    onStart();
+    return PostService.getPost(postId).then(onSuccess).catch(onError);
+  };
 
-  return { getPost, pending, error, post }
-}
+  return { getPost, pending, error, post };
+};
 
 const Post = ({ id }) => {
-  const { getPost, pending, error, post } = useGetPost()
+  const { getPost, pending, error, post } = useGetPost();
 
-  useEffect(() => getPost(id), [id])
+  useEffect(() => getPost(id), [id]);
 
   return (
     <div>
@@ -188,6 +178,6 @@ const Post = ({ id }) => {
       {pending && 'Loading...'}
       {error && error.message}
     </div>
-  )
-}
+  );
+};
 ```

@@ -6,10 +6,10 @@ const useIsMounted = () => {
     () => () => {
       isMounted.current = false
     },
-    []
+    [],
   )
 
-  return React.useCallback(() => isMounted.current, [])
+  return isMounted
 }
 
 interface State {
@@ -23,7 +23,7 @@ type Action = { type: 'START' } | { type: 'SUCCESS'; data: any } | { type: 'ERRO
 const initialState: State = {
   pending: false,
   error: undefined,
-  data: undefined
+  data: undefined,
 }
 
 const reducer = (state: State, action: Action) => {
@@ -47,7 +47,9 @@ const reducer = (state: State, action: Action) => {
   }
 }
 
-export const useAsync = <Data>(): {
+export const useAsync = <Data>(
+  initial: Partial<State> = {},
+): {
   data?: Data
   error?: Error
   onError: (error: Error) => void
@@ -57,23 +59,37 @@ export const useAsync = <Data>(): {
   reset: () => void
 } => {
   const isMounted = useIsMounted()
-  const [{ data, error, pending }, dispatch] = React.useReducer(reducer, initialState)
+  const [{ data, error, pending }, dispatch] = React.useReducer(reducer, { ...initialState, ...initial })
 
   const onStart = React.useCallback(() => {
-    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
-    isMounted() && dispatch({ type: 'START' })
+    if (pending) {
+      dispatch({ type: 'ERROR', error: new PendingActionError() })
+      return
+    }
+    isMounted.current && dispatch({ type: 'START' })
   }, [isMounted, pending])
 
-  const onSuccess = React.useCallback((data: Data) => isMounted() && dispatch({ type: 'SUCCESS', data }), [isMounted])
+  const onSuccess = React.useCallback((data: Data) => isMounted.current && dispatch({ type: 'SUCCESS', data }), [
+    isMounted,
+  ])
 
-  const onError = React.useCallback((error: Error) => isMounted() && dispatch({ type: 'ERROR', error }), [isMounted])
+  const onError = React.useCallback((error: Error) => isMounted.current && dispatch({ type: 'ERROR', error }), [
+    isMounted,
+  ])
 
   const reset = React.useCallback(() => {
-    if (pending) throw new Error('Multiple async actions. Use "pending" to prevent this.')
-    isMounted() && dispatch({ type: 'RESET' })
+    if (pending) {
+      dispatch({ type: 'ERROR', error: new PendingActionError() })
+      return
+    }
+    isMounted.current && dispatch({ type: 'RESET' })
   }, [isMounted, pending])
 
   return { onStart, onSuccess, onError, reset, data, error, pending }
 }
 
 export default useAsync
+
+class PendingActionError extends Error {
+  message = 'Multiple async actions. Use "pending" to prevent this.'
+}
